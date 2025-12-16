@@ -79,6 +79,8 @@ def build_bundle():
                 "--target",
                 str(lib_dir),
                 "--no-deps",  # Don't install sub-dependencies automatically
+                "--no-build-isolation",
+                "--only-binary=:all:",
                 *dependencies,
             ],
             check=True,
@@ -94,6 +96,8 @@ def build_bundle():
                 "--target",
                 str(lib_dir),
                 "--upgrade",  # Force upgrade to handle any conflicts
+                "--no-build-isolation",
+                "--only-binary=:all:",
                 *dependencies,
             ],
             check=True,
