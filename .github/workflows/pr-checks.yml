@@ -14,22 +14,16 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v6
         with:
-          python-version: "3.13"
+          enable-cache: true
 
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
-        with:
-          virtualenvs-create: true
-          virtualenvs-in-project: true
-
-      - name: Install dependencies
-        run: poetry install
+      - name: Sync uv environment
+        run: uv sync
 
       - name: Run tests
-        run: poetry run pytest
+        run: uv run pytest
 
   check-dist:
     runs-on: ubuntu-latest
@@ -40,22 +34,16 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v6
         with:
-          python-version: "3.13"
+          enable-cache: true
 
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
-        with:
-          virtualenvs-create: true
-          virtualenvs-in-project: true
-
-      - name: Install dependencies
-        run: poetry install --only=main
+      - name: Sync uv environment
+        run: uv sync
 
       - name: Build distribution
-        run: python build_bundle.py
+        run: uv run build_bundle.py
 
       - name: Check if dist is up-to-date
         run: |
@@ -66,7 +54,7 @@ jobs:
             git status --porcelain dist/
             echo ""
             echo "To fix this, run the following command locally and commit the changes:"
-            echo "  python build_bundle.py"
+            echo "  uv run build_bundle.py"
             echo ""
             echo "Changed files diff:"
             git diff dist/

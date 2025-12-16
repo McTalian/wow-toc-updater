@@ -11,41 +11,13 @@ def parse_dependencies():
     with open("pyproject.toml", "rb") as f:
         pyproject = tomllib.load(f)
 
-    dependencies = pyproject["tool"]["poetry"]["dependencies"]
+    # Parse from [project] section (standard format, used by uv/pip)
+    project = pyproject.get("project", {})
+    dependencies = project.get("dependencies", [])
 
-    # Filter out python version constraint and convert to pip format
-    deps = []
-    for name, constraint in dependencies.items():
-        if name != "python":
-            if isinstance(constraint, str):
-                # Convert Poetry version syntax to pip syntax
-                if constraint.startswith("^"):
-                    # ^2.31.0 becomes >=2.31.0
-                    version = constraint[1:]
-                    deps.append(f"{name}>={version}")
-                elif constraint.startswith("~"):
-                    # ~2.31.0 becomes >=2.31.0,<2.32.0 (compatible release)
-                    version = constraint[1:]
-                    deps.append(f"{name}~={version}")
-                elif (
-                    constraint.startswith(">=")
-                    or constraint.startswith("<=")
-                    or constraint.startswith("==")
-                    or constraint.startswith("!=")
-                    or constraint.startswith(">")
-                    or constraint.startswith("<")
-                ):
-                    # Already in pip format
-                    deps.append(f"{name}{constraint}")
-                else:
-                    # Assume exact version if no operator
-                    deps.append(f"{name}=={constraint}")
-            elif isinstance(constraint, dict):
-                # Handle complex dependency specifications
-                # For now, just use the package name and let pip resolve
-                deps.append(name)
-
-    return deps
+    # Dependencies are already in pip format in the [project] section
+    # Example: ["requests>=2.32.5", "click>=8.0.0"]
+    return dependencies
 
 
 def clean_platform_specific_files(lib_dir):
@@ -100,8 +72,7 @@ def build_bundle():
         lib_dir = dist_dir / "lib"
         subprocess.run(
             [
-                sys.executable,
-                "-m",
+                "uv",
                 "pip",
                 "install",
                 "--quiet",
@@ -116,8 +87,7 @@ def build_bundle():
         # Install sub-dependencies separately to ensure we get everything
         subprocess.run(
             [
-                sys.executable,
-                "-m",
+                "uv",
                 "pip",
                 "install",
                 "--quiet",

@@ -38,20 +38,26 @@ The script can optionally support Beta and PTR versions. If their versions are n
 
 ## Usage
 
-You can run this script via [Poetry](https://python-poetry.org/).
+You can run this script via [uv](https://docs.astral.sh/uv/).
 
-### Poetry
+### Running via uv
 
-1. Install dependencies:
+1. **Install uv**  
+   uv is used for Python dependency and environment management:
+
+   [Install uv](https://docs.astral.sh/uv/getting-started/installation/)
+
+2. **Install Dependencies**  
+   Install project dependencies into a virtual environment:
 
    ```bash
-   poetry install
+   uv sync
    ```
 
-2. Run the script:
+3. Run the script:
 
    ```bash
-   poetry run python toc_interface_updater/update.py -f <flavor> [-b] [-p]
+   uv run toc_interface_updater/update.py -f <flavor> [-b] [-p]
    ```
 
    - `-f <flavor>` - sets the fallback game version for unsuffixed TOC files, see [flavor](#flavor) for valid options

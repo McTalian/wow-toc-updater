@@ -3,6 +3,7 @@
 import re
 
 from toc_interface_updater.constants import InterfaceDirective, TocSuffix
+from toc_interface_updater.toc_types import Product
 
 
 class TestInterfaceDirective:
@@ -41,13 +42,19 @@ class TestTocSuffix:
 
     def test_suffix_to_product_mapping(self):
         """Test suffix to product mapping."""
-        assert TocSuffix.get_product_for_suffix(TocSuffix.MAINLINE) == "wow"
-        assert TocSuffix.get_product_for_suffix(TocSuffix.CLASSIC) == "wow_classic"
+        assert TocSuffix.get_product_for_suffix(TocSuffix.MAINLINE) == Product.WOW
         assert (
-            TocSuffix.get_product_for_suffix(TocSuffix.CURRENT_CLASSIC) == "wow_classic"
+            TocSuffix.get_product_for_suffix(TocSuffix.CLASSIC) == Product.WOW_CLASSIC
         )
-        assert TocSuffix.get_product_for_suffix(TocSuffix.VANILLA) == "wow_classic_era"
-        assert TocSuffix.get_product_for_suffix("Unknown") == "wow"  # Default
+        assert (
+            TocSuffix.get_product_for_suffix(TocSuffix.CURRENT_CLASSIC)
+            == Product.WOW_CLASSIC
+        )
+        assert (
+            TocSuffix.get_product_for_suffix(TocSuffix.VANILLA)
+            == Product.WOW_CLASSIC_ERA
+        )
+        assert TocSuffix.get_product_for_suffix("Unknown") == Product.WOW  # Default
 
     def test_toc_pattern_matching(self):
         """Test that TOC pattern matches expected file names."""

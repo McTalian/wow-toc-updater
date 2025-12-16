@@ -4,31 +4,32 @@ import re
 from typing import List, Set
 
 from .constants import InterfaceDirective
-from .types import BetaProduct, FullProduct, TestProduct, VersionCache
+from .toc_types import VersionCache, Product
 
 
-def get_beta_products(product: FullProduct) -> List[BetaProduct]:
+def get_beta_products(product: Product) -> List[Product]:
     """Get the list of beta products for a given full product."""
-    if product == "wow":
-        return ["wow_beta"]
-    elif product == "wow_classic":
-        return ["wow_classic_beta"]
+    if product == Product.WOW:
+        return [Product.WOW_BETA]
+    elif product == Product.WOW_CLASSIC:
+        return [Product.WOW_CLASSIC_BETA]
+    elif product == Product.WOW_CLASSIC_ERA:
+        return []
     return []
 
-
-def get_test_products(product: FullProduct) -> List[TestProduct]:
+def get_test_products(product: Product) -> List[Product]:
     """Get the list of test products for a given full product."""
-    if product == "wow":
-        return ["wowt", "wowxptr"]
-    elif product == "wow_classic":
-        return ["wow_classic_ptr"]
-    elif product == "wow_classic_era":
-        return ["wow_classic_era_ptr"]
+    if product == Product.WOW:
+        return [Product.WOW_TEST, Product.WOW_XPTR]
+    elif product == Product.WOW_CLASSIC:
+        return [Product.WOW_CLASSIC_PTR]
+    elif product == Product.WOW_CLASSIC_ERA:
+        return [Product.WOW_CLASSIC_ERA_PTR]
     return []
 
 
 def detect_existing_versions(
-    content: str, product: FullProduct, multi: bool
+    content: str, product: Product, multi: bool
 ) -> tuple[Set[str], bool]:
     """
     Detect existing versions from the content and determine if it's single line multi.
@@ -54,7 +55,7 @@ def detect_existing_versions(
 
     # Handle multi-line detection for specific products
     detected_version_strings = []
-    if product == "wow_classic":
+    if product == Product.WOW_CLASSIC:
         # Check for Current Classic directive
         current_classic_pattern = re.compile(
             InterfaceDirective.get_directive_pattern(
@@ -83,7 +84,7 @@ def detect_existing_versions(
                 .strip()
                 .split(",")
             )
-    elif product == "wow_classic_era":
+    elif product == Product.WOW_CLASSIC_ERA:
         vanilla_pattern = re.compile(
             InterfaceDirective.get_directive_pattern(InterfaceDirective.VANILLA),
             flags=re.MULTILINE,
@@ -116,46 +117,49 @@ def get_versions_from_detected(
             major = int(d_version.strip()[:-4])
 
             if major == 1:
-                versions.add(product_version("wow_classic_era", version_cache))
+                n_version = product_version(Product.WOW_CLASSIC_ERA, version_cache)
+                versions.add(n_version)
                 if test:
                     classic_era_ptr_version = product_version(
-                        "wow_classic_era_ptr", version_cache
+                        Product.WOW_CLASSIC_ERA_PTR, version_cache
                     )
-                    if int(d_version) < int(classic_era_ptr_version):
+                    if int(d_version) < int(classic_era_ptr_version) > int(n_version):
                         versions.add(classic_era_ptr_version)
             elif major < 11:
-                versions.add(product_version("wow_classic", version_cache))
+                n_version = product_version(Product.WOW_CLASSIC, version_cache)
+                versions.add(n_version)
                 if beta:
                     classic_beta_version = product_version(
-                        "wow_classic_beta", version_cache
+                        Product.WOW_CLASSIC_BETA, version_cache
                     )
-                    if int(d_version) < int(classic_beta_version):
+                    if int(d_version) < int(classic_beta_version) > int(n_version):
                         versions.add(classic_beta_version)
                 if test:
                     classic_ptr_version = product_version(
-                        "wow_classic_ptr", version_cache
+                        Product.WOW_CLASSIC_PTR, version_cache
                     )
-                    if int(d_version) < int(classic_ptr_version):
+                    if int(d_version) < int(classic_ptr_version) > int(n_version):
                         versions.add(classic_ptr_version)
             else:
-                versions.add(product_version("wow", version_cache))
+                n_version = product_version(Product.WOW, version_cache)
+                versions.add(n_version)
                 if beta:
-                    beta_version = product_version("wow_beta", version_cache)
-                    if int(d_version) < int(beta_version):
+                    beta_version = product_version(Product.WOW_BETA, version_cache)
+                    if int(d_version) < int(beta_version) > int(n_version):
                         versions.add(beta_version)
                 if test:
-                    ptr_version = product_version("wowt", version_cache)
-                    if int(d_version) < int(ptr_version):
+                    ptr_version = product_version(Product.WOW_TEST, version_cache)
+                    if int(d_version) < int(ptr_version) > int(n_version):
                         versions.add(ptr_version)
-                    ptr_version = product_version("wowxptr", version_cache)
-                    if int(d_version) < int(ptr_version):
+                    ptr_version = product_version(Product.WOW_XPTR, version_cache)
+                    if int(d_version) < int(ptr_version) > int(n_version):
                         versions.add(ptr_version)
 
     return versions
 
 
 def collect_all_versions(
-    product: FullProduct, beta: bool, test: bool, version_cache: VersionCache
+    product: Product, beta: bool, test: bool, version_cache: VersionCache
 ) -> Set[str]:
     """Collect all versions (base, beta, test) for a product."""
     from .version_client import product_version  # Import here to avoid circular imports
@@ -167,14 +171,14 @@ def collect_all_versions(
     if beta:
         for beta_product in get_beta_products(product):
             beta_version = product_version(beta_product, version_cache)
-            if beta_version > base_version:
+            if int(beta_version) > int(base_version):
                 versions.add(beta_version)
 
     # Handle test versions
     if test:
         for test_product in get_test_products(product):
             test_version = product_version(test_product, version_cache)
-            if test_version > base_version:
+            if int(test_version) > int(base_version):
                 versions.add(test_version)
 
     return versions

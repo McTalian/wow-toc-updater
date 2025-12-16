@@ -3,8 +3,8 @@ from typing import List
 from .cli import main
 from .content_updater import update_interface_content
 from .file_processor import write_file_if_changed
-from .types import (
-    FullProduct,
+from .toc_types import (
+    Product,
     VersionCache,
 )
 from .version_resolver import (
@@ -23,7 +23,7 @@ YELLOW = "\033[33m"
 
 def update_versions(
     file: str,
-    product: FullProduct,
+    product: Product,
     multi: bool,
     beta: bool,
     test: bool,
@@ -46,15 +46,18 @@ def update_versions(
     versions = collect_all_versions(product, beta, test, version_cache)
     interface = ", ".join(sorted(versions, key=lambda x: int(x)))
 
-    # Detect existing versions and determine format
+    # # Detect existing versions and determine format
     detected_versions, single_line_multi = detect_existing_versions(
         original_content_normalized, product, multi
     )
 
     if detected_versions:
-        versions = get_versions_from_detected(
+        d_versions = get_versions_from_detected(
             detected_versions, beta, test, version_cache
         )
+        for new_version in d_versions:
+            versions.add(new_version)
+
         interface = ", ".join(sorted(versions, key=lambda x: int(x)))
 
     # Update the content with new interface versions

@@ -1,20 +1,21 @@
-[tool.poetry]
+[project]
 name = "toc-interface-updater"
 version = "0.1.0"
 description = ""
-authors = ["Rob Anderson <Mctalian@users.noreply.github.com>"]
-license = "LICENSE"
+authors = [
+  { name = "Rob Anderson", email = "Mctalian@users.noreply.github.com" },
+]
+license = { text = "MIT" }
 readme = "README.md"
-package-mode = true
+requires-python = ">=3.13.0"
+dependencies = ["requests>=2.32.5"]
 
-[tool.poetry.dependencies]
-python = "^3.13"
-requests = "^2.31.0"
+[dependency-groups]
+dev = ["pytest>=9.0.2", "pytest-cov>=7.0.0"]
 
-[tool.poetry.group.dev.dependencies]
-pytest = "^8.3.4"
-pytest-cov = "^6.0.0"
+[project.scripts]
+toc-updater = "toc_interface_updater.cli:main"
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
