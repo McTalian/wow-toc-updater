@@ -5,7 +5,7 @@ import re
 from typing import List
 
 from .constants import TocSuffix
-from .types import FullProduct, VersionCache
+from .toc_types import GameFlavor, Product, VersionCache
 
 # ANSI escape sequences for colors and formatting
 RESET = "\033[0m"
@@ -43,7 +43,7 @@ def write_file_if_changed(
 
 def get_product_for_file(
     file_path: str, pattern: re.Pattern, default_flavor: str
-) -> tuple[FullProduct, bool]:
+) -> tuple[Product, bool]:
     """
     Determine the product and multi-line setting for a file.
     Returns (product, is_multi_line)
@@ -54,17 +54,16 @@ def get_product_for_file(
 
     # File matches pattern, determine specific product
     if TocSuffix.MAINLINE in file_path:
-        return "wow", False
+        return Product.WOW, False
     elif TocSuffix.CLASSIC in file_path or TocSuffix.CURRENT_CLASSIC in file_path:
-        return "wow_classic", False
+        return Product.WOW_CLASSIC, False
     elif TocSuffix.VANILLA in file_path:
-        return "wow_classic_era", False
-
+        return Product.WOW_CLASSIC_ERA, False
     return default_flavor, False
 
 
 def process_files(
-    flavor: str, beta: bool, test: bool, version_cache: VersionCache
+    flavor: GameFlavor, beta: bool, test: bool, version_cache: VersionCache
 ) -> List[str]:
     """Process all .toc files in the current directory and subdirectories."""
     from .update import update_versions  # Import here to avoid circular imports
@@ -82,11 +81,17 @@ def process_files(
             if not pattern.search(file_path):
                 # Process with default flavor and all product types
                 update_versions(
-                    file_path, flavor, False, beta, test, version_cache, modified_files
+                    file_path,
+                    flavor.value,
+                    False,
+                    beta,
+                    test,
+                    version_cache,
+                    modified_files,
                 )
                 update_versions(
                     file_path,
-                    "wow_classic",
+                    Product.WOW_CLASSIC,
                     True,
                     beta,
                     test,
@@ -95,7 +100,7 @@ def process_files(
                 )
                 update_versions(
                     file_path,
-                    "wow_classic_era",
+                    Product.WOW_CLASSIC_ERA,
                     True,
                     beta,
                     test,

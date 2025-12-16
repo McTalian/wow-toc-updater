@@ -6,46 +6,43 @@ import tomllib
 from pathlib import Path
 
 
+def normalize_permissions(directory):
+    """Normalize file permissions in the distribution directory."""
+    import os
+    import stat
+
+    for root, dirs, files in os.walk(directory):
+        for file in files:
+            file_path = os.path.join(root, file)
+            # Set consistent file permissions (644)
+            os.chmod(
+                file_path, stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IROTH
+            )
+        for dir in dirs:
+            dir_path = os.path.join(root, dir)
+            # Set consistent directory permissions (755)
+            os.chmod(
+                dir_path,
+                stat.S_IRWXU
+                | stat.S_IRGRP
+                | stat.S_IXGRP
+                | stat.S_IROTH
+                | stat.S_IXOTH,
+            )
+
+
 def parse_dependencies():
     """Parse dependencies from pyproject.toml."""
     with open("pyproject.toml", "rb") as f:
         pyproject = tomllib.load(f)
 
-    dependencies = pyproject["tool"]["poetry"]["dependencies"]
+    # Parse from [project] section (standard format, used by uv/pip)
+    project = pyproject.get("project", {})
+    dependencies = project.get("dependencies", [])
 
-    # Filter out python version constraint and convert to pip format
-    deps = []
-    for name, constraint in dependencies.items():
-        if name != "python":
-            if isinstance(constraint, str):
-                # Convert Poetry version syntax to pip syntax
-                if constraint.startswith("^"):
-                    # ^2.31.0 becomes >=2.31.0
-                    version = constraint[1:]
-                    deps.append(f"{name}>={version}")
-                elif constraint.startswith("~"):
-                    # ~2.31.0 becomes >=2.31.0,<2.32.0 (compatible release)
-                    version = constraint[1:]
-                    deps.append(f"{name}~={version}")
-                elif (
-                    constraint.startswith(">=")
-                    or constraint.startswith("<=")
-                    or constraint.startswith("==")
-                    or constraint.startswith("!=")
-                    or constraint.startswith(">")
-                    or constraint.startswith("<")
-                ):
-                    # Already in pip format
-                    deps.append(f"{name}{constraint}")
-                else:
-                    # Assume exact version if no operator
-                    deps.append(f"{name}=={constraint}")
-            elif isinstance(constraint, dict):
-                # Handle complex dependency specifications
-                # For now, just use the package name and let pip resolve
-                deps.append(name)
-
-    return deps
+    # Dependencies are already in pip format in the [project] section
+    # Example: ["requests>=2.32.5", "click>=8.0.0"]
+    return dependencies
 
 
 def clean_platform_specific_files(lib_dir):
@@ -100,14 +97,15 @@ def build_bundle():
         lib_dir = dist_dir / "lib"
         subprocess.run(
             [
-                sys.executable,
-                "-m",
+                "uv",
                 "pip",
                 "install",
                 "--quiet",
                 "--target",
                 str(lib_dir),
                 "--no-deps",  # Don't install sub-dependencies automatically
+                "--no-build-isolation",
+                "--only-binary=:all:",
                 *dependencies,
             ],
             check=True,
@@ -116,14 +114,15 @@ def build_bundle():
         # Install sub-dependencies separately to ensure we get everything
         subprocess.run(
             [
-                sys.executable,
-                "-m",
+                "uv",
                 "pip",
                 "install",
                 "--quiet",
                 "--target",
                 str(lib_dir),
                 "--upgrade",  # Force upgrade to handle any conflicts
+                "--no-build-isolation",
+                "--only-binary=:all:",
                 *dependencies,
             ],
             check=True,
@@ -132,6 +131,9 @@ def build_bundle():
         # Clean platform-specific files
         print("🧽 Cleaning platform-specific files...")
         clean_platform_specific_files(lib_dir)
+
+    print("🔧 Normalizing file permissions...")
+    normalize_permissions(lib_dir)
 
     # Create requirements.txt for reference
     print("📝 Creating requirements.txt...")

@@ -4,7 +4,7 @@ import argparse
 
 from .constants import TocSuffix
 from .file_processor import process_files
-from .types import GameFlavor, VersionCache
+from .toc_types import GameFlavor, VersionCache
 
 # ANSI escape sequences for colors and formatting
 RESET = "\033[0m"
@@ -16,7 +16,7 @@ def flavor_type(value):
     """Convert string flavor to GameFlavor enum."""
     # Get the current classic expansion name (lowercase) for CLI usage
     current_classic_name = TocSuffix.CURRENT_CLASSIC.lower()
-    
+
     flavor_map = {
         "retail": GameFlavor.WOW,
         "mainline": GameFlavor.WOW,
@@ -36,7 +36,7 @@ def main():
     """Main CLI entry point."""
     # Get the current classic expansion name for help text
     current_classic_name = TocSuffix.CURRENT_CLASSIC.lower()
-    
+
     parser = argparse.ArgumentParser(description="WoW TOC Updater")
     parser.add_argument(
         "-b", "--beta", action="store_true", help="Include beta versions"
@@ -54,9 +54,7 @@ def main():
     args = parser.parse_args()
 
     version_cache: VersionCache = {}
-    modified_files = process_files(
-        args.flavor.value, args.beta, args.ptr, version_cache
-    )
+    modified_files = process_files(args.flavor, args.beta, args.ptr, version_cache)
 
     if modified_files:
         print(f"\n{GREEN}Files modified:")

@@ -1,6 +1,7 @@
 """Unit tests for version resolver functions."""
 
 from toc_interface_updater.constants import InterfaceDirective
+from toc_interface_updater.toc_types import Product
 from toc_interface_updater.version_resolver import (
     detect_existing_versions,
     get_beta_products,
@@ -13,33 +14,33 @@ class TestProductMapping:
 
     def test_get_beta_products_wow(self):
         """Test beta products for wow."""
-        result = get_beta_products("wow")
-        assert result == ["wow_beta"]
+        result = get_beta_products(Product.WOW)
+        assert result == [Product.WOW_BETA]
 
     def test_get_beta_products_wow_classic(self):
         """Test beta products for wow_classic."""
-        result = get_beta_products("wow_classic")
-        assert result == ["wow_classic_beta"]
+        result = get_beta_products(Product.WOW_CLASSIC)
+        assert result == [Product.WOW_CLASSIC_BETA]
 
     def test_get_beta_products_wow_classic_era(self):
         """Test beta products for wow_classic_era."""
-        result = get_beta_products("wow_classic_era")
+        result = get_beta_products(Product.WOW_CLASSIC_ERA)
         assert result == []
 
     def test_get_test_products_wow(self):
         """Test test products for wow."""
-        result = get_test_products("wow")
-        assert result == ["wowt", "wowxptr"]
+        result = get_test_products(Product.WOW)
+        assert result == [Product.WOW_TEST, Product.WOW_XPTR]
 
     def test_get_test_products_wow_classic(self):
         """Test test products for wow_classic."""
-        result = get_test_products("wow_classic")
-        assert result == ["wow_classic_ptr"]
+        result = get_test_products(Product.WOW_CLASSIC)
+        assert result == [Product.WOW_CLASSIC_PTR]
 
     def test_get_test_products_wow_classic_era(self):
         """Test test products for wow_classic_era."""
-        result = get_test_products("wow_classic_era")
-        assert result == ["wow_classic_era_ptr"]
+        result = get_test_products(Product.WOW_CLASSIC_ERA)
+        assert result == [Product.WOW_CLASSIC_ERA_PTR]
 
 
 class TestVersionDetection:
@@ -48,14 +49,16 @@ class TestVersionDetection:
     def test_detect_existing_versions_single_line_multi(self):
         """Test detection of single line multi-version interface."""
         content = f"{InterfaceDirective.BASE} 110000, 110001\n## Title: Test Addon"
-        versions, is_single_multi = detect_existing_versions(content, "wow", False)
+        versions, is_single_multi = detect_existing_versions(
+            content, Product.WOW, False
+        )
         assert versions == {"110000", "110001"}
         assert is_single_multi
 
     def test_detect_existing_versions_single_line_not_multi(self):
         """Test detection of single line interface when multi is requested."""
         content = f"{InterfaceDirective.BASE} 110000, 110001\n## Title: Test Addon"
-        versions, is_single_multi = detect_existing_versions(content, "wow", True)
+        versions, is_single_multi = detect_existing_versions(content, Product.WOW, True)
         # When multi=True is requested but we have single line multi,
         # the function returns empty set because it expects multi-line format
         assert versions == set()
@@ -65,7 +68,7 @@ class TestVersionDetection:
         """Test detection of WoW Current Classic interface."""
         content = f"{InterfaceDirective.CURRENT_CLASSIC} 40400\n## Title: Test Addon"
         versions, is_single_multi = detect_existing_versions(
-            content, "wow_classic", True
+            content, Product.WOW_CLASSIC, True
         )
         assert versions == {"40400"}
         assert not is_single_multi
@@ -76,7 +79,7 @@ class TestVersionDetection:
 {InterfaceDirective.CLASSIC} 11503
 ## Title: Test Addon"""
         versions, is_single_multi = detect_existing_versions(
-            content, "wow_classic", True
+            content, Product.WOW_CLASSIC, True
         )
         assert versions == {"40400", "11503"}
         assert not is_single_multi
@@ -85,7 +88,7 @@ class TestVersionDetection:
         """Test detection of Vanilla interface."""
         content = f"{InterfaceDirective.VANILLA} 11503\n## Title: Test Addon"
         versions, is_single_multi = detect_existing_versions(
-            content, "wow_classic_era", True
+            content, Product.WOW_CLASSIC_ERA, True
         )
         assert versions == {"11503"}
         assert not is_single_multi
@@ -93,6 +96,8 @@ class TestVersionDetection:
     def test_detect_existing_versions_no_versions(self):
         """Test when no versions are detected."""
         content = "## Title: Test Addon\n## Author: Test"
-        versions, is_single_multi = detect_existing_versions(content, "wow", False)
+        versions, is_single_multi = detect_existing_versions(
+            content, Product.WOW, False
+        )
         assert versions == set()
         assert not is_single_multi

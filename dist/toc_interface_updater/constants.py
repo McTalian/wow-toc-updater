@@ -3,6 +3,8 @@
 import re
 from typing import Dict
 
+from .toc_types import Product
+
 
 class InterfaceDirective:
     """Interface directive definitions for TOC files."""
@@ -63,10 +65,10 @@ class TocSuffix:
 
     # Mapping of suffixes to their corresponding products
     SUFFIX_TO_PRODUCT = {
-        MAINLINE: "wow",
-        CLASSIC: "wow_classic",
-        MISTS: "wow_classic",
-        VANILLA: "wow_classic_era",
+        MAINLINE: Product.WOW,
+        CLASSIC: Product.WOW_CLASSIC,
+        CURRENT_CLASSIC: Product.WOW_CLASSIC,
+        VANILLA: Product.WOW_CLASSIC_ERA,
     }
 
     @classmethod
@@ -78,4 +80,4 @@ class TocSuffix:
     @classmethod
     def get_product_for_suffix(cls, suffix: str) -> str:
         """Get the product type for a given suffix."""
-        return cls.SUFFIX_TO_PRODUCT.get(suffix, "wow")
+        return cls.SUFFIX_TO_PRODUCT.get(suffix, Product.WOW)

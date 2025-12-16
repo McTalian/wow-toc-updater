@@ -1,5 +1,7 @@
 import pytest
 
+from toc_interface_updater.toc_types import Product
+
 
 @pytest.fixture
 def toc_files(tmp_path):
@@ -27,16 +29,16 @@ def product_versions():
     from toc_interface_updater.version_client import product_version
 
     versions = {}
-    product_version("wow", versions)
-    product_version("wowt", versions)
-    product_version("wowxptr", versions)
-    product_version("wow_beta", versions)
-    product_version("wow_classic", versions)
-    product_version("wow_classic_ptr", versions)
-    product_version("wow_classic_beta", versions)
-    product_version("wow_classic_era", versions)
-    product_version("wow_classic_era_ptr", versions)
+    product_version(Product.WOW, versions)
+    product_version(Product.WOW_TEST, versions)
+    product_version(Product.WOW_XPTR, versions)
+    product_version(Product.WOW_BETA, versions)
+    product_version(Product.WOW_CLASSIC, versions)
+    product_version(Product.WOW_CLASSIC_PTR, versions)
+    product_version(Product.WOW_CLASSIC_BETA, versions)
+    product_version(Product.WOW_CLASSIC_ERA, versions)
+    product_version(Product.WOW_CLASSIC_ERA_PTR, versions)
     # The product exists but there is no version information for it
-    # product_version("wow_classic_era_beta", versions)
+    # product_version(Product.WOW_CLASSIC_ERA_BETA, versions)
 
     return versions

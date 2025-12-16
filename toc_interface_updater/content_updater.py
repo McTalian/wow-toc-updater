@@ -3,19 +3,19 @@
 import re
 
 from .constants import InterfaceDirective
-from .types import FullProduct
+from .toc_types import Product
 
 
 def update_interface_content(
     content: str,
-    product: FullProduct,
+    product: Product,
     interface: str,
     multi: bool,
     single_line_multi: bool,
 ) -> str:
     """Update the interface version in the content based on product and format."""
     if multi and not single_line_multi:
-        if product == "wow_classic":
+        if product == Product.WOW_CLASSIC:
             # Update Current Classic directive
             content = re.sub(
                 InterfaceDirective.get_directive_pattern(
@@ -32,7 +32,7 @@ def update_interface_content(
                 content,
                 flags=re.MULTILINE,
             )
-        elif product == "wow_classic_era":
+        elif product == Product.WOW_CLASSIC_ERA:
             # Update Vanilla directive
             content = re.sub(
                 InterfaceDirective.get_directive_pattern(InterfaceDirective.VANILLA),

@@ -4,7 +4,7 @@ import argparse
 
 from .constants import TocSuffix
 from .file_processor import process_files
-from .types import GameFlavor, VersionCache
+from .toc_types import GameFlavor, VersionCache
 
 # ANSI escape sequences for colors and formatting
 RESET = "\033[0m"
@@ -54,9 +54,7 @@ def main():
     args = parser.parse_args()
 
     version_cache: VersionCache = {}
-    modified_files = process_files(
-        args.flavor.value, args.beta, args.ptr, version_cache
-    )
+    modified_files = process_files(args.flavor, args.beta, args.ptr, version_cache)
 
     if modified_files:
         print(f"\n{GREEN}Files modified:")
