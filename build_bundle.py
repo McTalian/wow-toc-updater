@@ -6,6 +6,31 @@ import tomllib
 from pathlib import Path
 
 
+def normalize_permissions(directory):
+    """Normalize file permissions in the distribution directory."""
+    import os
+    import stat
+
+    for root, dirs, files in os.walk(directory):
+        for file in files:
+            file_path = os.path.join(root, file)
+            # Set consistent file permissions (644)
+            os.chmod(
+                file_path, stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IROTH
+            )
+        for dir in dirs:
+            dir_path = os.path.join(root, dir)
+            # Set consistent directory permissions (755)
+            os.chmod(
+                dir_path,
+                stat.S_IRWXU
+                | stat.S_IRGRP
+                | stat.S_IXGRP
+                | stat.S_IROTH
+                | stat.S_IXOTH,
+            )
+
+
 def parse_dependencies():
     """Parse dependencies from pyproject.toml."""
     with open("pyproject.toml", "rb") as f:
@@ -106,6 +131,9 @@ def build_bundle():
         # Clean platform-specific files
         print("🧽 Cleaning platform-specific files...")
         clean_platform_specific_files(lib_dir)
+
+    print("🔧 Normalizing file permissions...")
+    normalize_permissions(lib_dir)
 
     # Create requirements.txt for reference
     print("📝 Creating requirements.txt...")
