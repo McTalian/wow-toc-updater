@@ -3,6 +3,7 @@
 from enum import Enum
 from typing import Dict
 
+
 class Product(Enum):
     """Enumeration of supported WoW product types."""
 
@@ -17,8 +18,10 @@ class Product(Enum):
     # WOW_CLASSIC_ERA_BETA = "wow_classic_era_beta"
     WOW_CLASSIC_ERA_PTR = "wow_classic_era_ptr"
 
+
 # Product type definitions
 VersionCache = Dict[Product, str]
+
 
 def is_valid_product(product: str) -> bool:
     """Check if a product string is a valid Product type."""

@@ -54,9 +54,7 @@ def main():
     args = parser.parse_args()
 
     version_cache: VersionCache = {}
-    modified_files = process_files(
-        args.flavor, args.beta, args.ptr, version_cache
-    )
+    modified_files = process_files(args.flavor, args.beta, args.ptr, version_cache)
 
     if modified_files:
         print(f"\n{GREEN}Files modified:")

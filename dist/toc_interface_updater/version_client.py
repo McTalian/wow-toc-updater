@@ -1,9 +1,11 @@
 """Wago API client for fetching version information."""
 
 from typing import TypedDict
+
 import requests
 
 from .toc_types import Product, VersionCache, is_valid_product
+
 
 class BuildInfo(TypedDict):
     product: str
@@ -12,6 +14,7 @@ class BuildInfo(TypedDict):
     build_config: str
     product_config: str
     cdn_config: str
+
 
 def product_version(req_product: Product, version_cache: VersionCache) -> str:
     """Fetch the latest builds information from Wago API."""
@@ -30,7 +33,9 @@ def product_version(req_product: Product, version_cache: VersionCache) -> str:
 
     for product, build_info in product_map.items():
         if not is_valid_product(product) and product not in version_cache:
-            print(f"Warning: Received unknown product '{product}' from API, skipping for now. Please open an issue if this product is valid.")
+            print(
+                f"Warning: Received unknown product '{product}' from API, skipping for now. Please open an issue if this product is valid."
+            )
             continue
 
         product_key = Product(product)

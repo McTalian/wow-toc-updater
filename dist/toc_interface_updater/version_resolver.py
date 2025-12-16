@@ -4,7 +4,7 @@ import re
 from typing import List, Set
 
 from .constants import InterfaceDirective
-from .toc_types import VersionCache, Product
+from .toc_types import Product, VersionCache
 
 
 def get_beta_products(product: Product) -> List[Product]:
@@ -16,6 +16,7 @@ def get_beta_products(product: Product) -> List[Product]:
     elif product == Product.WOW_CLASSIC_ERA:
         return []
     return []
+
 
 def get_test_products(product: Product) -> List[Product]:
     """Get the list of test products for a given full product."""

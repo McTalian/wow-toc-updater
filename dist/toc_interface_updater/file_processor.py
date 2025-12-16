@@ -81,7 +81,13 @@ def process_files(
             if not pattern.search(file_path):
                 # Process with default flavor and all product types
                 update_versions(
-                    file_path, flavor.value, False, beta, test, version_cache, modified_files
+                    file_path,
+                    flavor.value,
+                    False,
+                    beta,
+                    test,
+                    version_cache,
+                    modified_files,
                 )
                 update_versions(
                     file_path,
