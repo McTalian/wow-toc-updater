@@ -24,5 +24,5 @@ runs:
 
     - name: Run TOC Updater
       uses: McTalian/wow-build-tools/toc/update@v1-beta
-      with: |
+      with:
         args: -a ${{ inputs.addonDir }} ${{ inputs.beta != '' && '-b' || '' }} ${{ inputs.ptr != '' && '-p' || '' }}
