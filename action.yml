@@ -4,9 +4,11 @@ branding:
   icon: tag
   color: green
 inputs:
+  addonDir:
+    description: Directory containing the addon TOC file(s)
+    default: .
   flavor:
-    description: Interface version to default to
-    default: retail
+    description: DEPRECATED - automatically determined from TOC file(s)
   beta:
     description: Include beta versions?
   ptr:
@@ -14,7 +16,13 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Run the TOC updater script
+    - name: Check for deprecated input
+      if: ${{ inputs.flavor != '' }}
       run: |
-        python3 ${GITHUB_ACTION_PATH}/dist/run.py -f ${{ inputs.flavor }} ${{ inputs.beta != '' && '-b' || '' }} ${{ inputs.ptr != '' && '-p' || '' }}
+        echo "Warning: The 'flavor' input is deprecated and will be removed in future versions. The addon flavor is now automatically determined from the TOC file(s)."
       shell: bash
+
+    - name: Run TOC Updater
+      uses: McTalian/wow-build-tools/toc/update@v1-beta
+      with: |
+        args: -a ${{ inputs.addonDir }} ${{ inputs.beta != '' && '-b' || '' }} ${{ inputs.ptr != '' && '-p' || '' }}
