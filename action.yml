@@ -23,6 +23,6 @@ runs:
       shell: bash
 
     - name: Run TOC Updater
-      uses: McTalian/wow-build-tools/toc/update@v1-beta
+      uses: McTalian/wow-build-tools/toc/updater@v1-beta
       with: |
         args: -a ${{ inputs.addonDir }} ${{ inputs.beta != '' && '-b' || '' }} ${{ inputs.ptr != '' && '-p' || '' }}
