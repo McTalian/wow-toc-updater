@@ -26,4 +26,3 @@ runs:
       uses: McTalian/wow-build-tools/toc/updater@v1-beta
       with: |
         args: -a ${{ inputs.addonDir }} ${{ inputs.beta != '' && '-b' || '' }} ${{ inputs.ptr != '' && '-p' || '' }}
-      shell: bash
