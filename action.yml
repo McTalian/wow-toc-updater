@@ -1,28 +1,59 @@
-name: WoW TOC Updater
-description: Updates Interface versions found in World of Warcraft TOC metadata files
+name: WoW TOC Updater (unmaintained)
+description: Unmaintained — use McTalian-WoW-Addons/wow-build-tools/toc/update instead
 branding:
-  icon: tag
-  color: green
+  icon: alert-triangle
+  color: red
 inputs:
   addonDir:
-    description: Directory containing the addon TOC file(s)
+    description: REMOVED — see the migration notice this action prints
     default: .
   flavor:
-    description: DEPRECATED - automatically determined from TOC file(s)
+    description: REMOVED — the addon flavor is determined from the TOC file(s)
   beta:
-    description: Include beta versions?
+    description: REMOVED — see the migration notice this action prints
   ptr:
-    description: Include PTR versions?
+    description: REMOVED — see the migration notice this action prints
 runs:
   using: composite
   steps:
-    - name: Check for deprecated input
-      if: ${{ inputs.flavor != '' }}
-      run: |
-        echo "Warning: The 'flavor' input is deprecated and will be removed in future versions. The addon flavor is now automatically determined from the TOC file(s)."
+    - name: Unmaintained — migrate to wow-build-tools
       shell: bash
+      run: |
+        echo "::error title=toc-interface-updater is unmaintained::Use McTalian-WoW-Addons/wow-build-tools/toc/update instead"
+        cat >&2 <<'NOTICE'
 
-    - name: Run TOC Updater
-      uses: McTalian/wow-build-tools/toc/update@v1-beta
-      with:
-        args: -a ${{ inputs.addonDir }} ${{ inputs.beta != '' && '-b' || '' }} ${{ inputs.ptr != '' && '-p' || '' }}
+        ============================================================
+         McTalian/toc-interface-updater is unmaintained.
+         Its successor is McTalian-WoW-Addons/wow-build-tools.
+        ============================================================
+
+        Replace this step:
+
+            - uses: McTalian/toc-interface-updater@v2
+              with:
+                addonDir: MyAddon
+                beta: true
+                ptr: true
+
+        with:
+
+            - uses: McTalian-WoW-Addons/wow-build-tools/toc/update@v1
+              with:
+                addon-dir: MyAddon
+                beta: "true"
+                ptr: "true"
+
+        Notes:
+          * addonDir -> addon-dir
+          * beta/ptr take the strings "true"/"false"
+          * flavor is gone; the flavor is read from the TOC file(s)
+          * the action also emits versions-added, versions-removed and
+            result-json outputs
+
+        wow-build-tools is actively maintained and supports client lines this
+        action never will, including WoW Forever (1.60.x).
+
+        Docs: https://github.com/McTalian-WoW-Addons/wow-build-tools
+
+        NOTICE
+        exit 1

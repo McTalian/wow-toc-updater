@@ -1,5 +1,35 @@
 # TOC Interface Updater
 
+> [!WARNING]
+> **This action is unmaintained.** Its successor is
+> [wow-build-tools](https://github.com/McTalian-WoW-Addons/wow-build-tools), which is
+> actively maintained and supports client lines this action never will, including
+> WoW Forever (1.60.x).
+>
+> Every tag of this action now fails with a migration notice. Replace:
+>
+> ```yaml
+> - uses: McTalian/toc-interface-updater@v2
+>   with:
+>     addonDir: MyAddon
+>     beta: true
+>     ptr: true
+> ```
+>
+> with:
+>
+> ```yaml
+> - uses: McTalian-WoW-Addons/wow-build-tools/toc/update@v1
+>   with:
+>     addon-dir: MyAddon
+>     beta: "true"
+>     ptr: "true"
+> ```
+>
+> `addonDir` becomes `addon-dir`, `beta`/`ptr` take the strings `"true"`/`"false"`, and
+> `flavor` is gone — the flavor is read from the TOC file(s). The replacement also emits
+> `versions-added`, `versions-removed` and `result-json` outputs.
+
 This script will parse [World of Warcraft AddOn metadata files (TOC)](https://warcraft.wiki.gg/wiki/TOC_format) and update the Interface version(s) to the most recent version(s) of the game.
 
 It was originally forked from p3lim's [toc-interface-updater](https://github.com/p3lim/toc-interface-updater). I rewrote it in Python mainly to focus on automated tests.
